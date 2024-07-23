@@ -1,49 +1,67 @@
 let screen = document.querySelector("h1")
-let leftOperand = "0", operator = null, rightOperand = null
+let leftOperand = null, operator = null, rightOperand = null
 let buttons = document.querySelectorAll("button")
+
+function clearCalculator(screenText) {
+    leftOperand = rightOperand = operator = null
+    screen.innerText = screenText
+}
+
+function calculateCalculator() {
+    if (operator === "+") {
+        leftOperand = parseFloat(leftOperand) + parseFloat(rightOperand)
+    } else if (operator === "-") {
+        leftOperand = parseFloat(leftOperand) - parseFloat(rightOperand)
+    } else if (operator === "*") {
+        leftOperand = parseFloat(leftOperand) * parseFloat(rightOperand)
+    } else {
+        if (rightOperand === "0") {
+            clearCalculator("Infinity")
+        } else {
+            leftOperand = parseFloat(leftOperand) / parseFloat(rightOperand)
+        }
+    }
+    if (leftOperand !== null) {
+        screen.innerText = leftOperand
+        rightOperand = null
+    }
+}
 
 buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
         if (btn.className === "") {
             if (operator === null) {
-                screen.innerText = (leftOperand === "0") ? (btn.value) : (leftOperand + btn.value)
+                leftOperand = (leftOperand === null || leftOperand === "0") ? btn.value : (leftOperand + btn.value)
+                screen.innerText = leftOperand
             } else {
-                screen.innerText = (rightOperand === "0" || rightOperand === null) ? (btn.value) : (rightOperand + btn.value)
+                rightOperand = (rightOperand === null || rightOperand === "0") ? btn.value : (rightOperand + btn.value)
+                screen.innerText = rightOperand
             }
         }
 
         else if (btn.className === "operator") {
-            if (rightOperand !== null) {
-                if (btn.value === "+") {
-                    screen.innerText = parseFloat(leftOperand) + parseFloat(screen.innerText)
-                } else if (btn.value === "-") {
-                    screen.innerText = parseFloat(leftOperand) - parseFloat(screen.innerText)
-                } else if (btn.value === "*") {
-                    screen.innerText = parseFloat(leftOperand) * parseFloat(screen.innerText) 
-                } else {
-                    if (screen.innerText === "0") {
-                        screen.innerText = "Infinity"
-                        leftOperand = null 
-                    } else {
-                        screen.innerText = parseFloat(leftOperand) / parseFloat(screen.innerText)
-                    }
-                }
-                if (screen.innerText !== "Infinity") {
-                    leftOperand = screen.innerText
-                }
-                rightOperand = null 
+            if (operator === null || rightOperand === null) {
+                operator = btn.value 
+            } else {
+                calculateCalculator()
             }
-            operator = btn.value 
-            leftOperand = screen.innerText
         }
         else if (btn.className === "decimal") {
-            screen.innerText = (screen.innerText.includes(".")) ? screen.innerText : (screen.innerText + ".")
+            if (operator === null) {
+                leftOperand = leftOperand.includes(".") ? leftOperand : (leftOperand + ".")
+                screen.innerText = leftOperand
+            } else {
+                rightOperand = rightOperand.includes(".") ? rightOperand : (rightOperand + ".")
+                screen.innerText = rightOperand
+            }
         }
         else if (btn.className === "clear") {
-            screen.innerText = "0"
+            clearCalculator("0")
         }
         else if (btn.className === "equal-sign operator") {
-
+            if (rightOperand !== null) {
+                calculateCalculator()
+            }
         }
     })
 })
